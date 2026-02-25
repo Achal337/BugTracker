@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AA-Bug-AI — Intelligent Bug Report Generator</title>
+    <meta name="description"
+        content="Upload a bug screenshot, let AI analyze it, and push structured bug reports to Jira instantly." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="/style.css" />
+</head>
+
+<body>
+
+    <!-- ========== HEADER ========== -->
+    <header id="app-header">
+        <div class="header-left">
+            <div class="logo-icon">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="8" x2="12" y2="12" />
+                    <line x1="12" y1="16" x2="12.01" y2="16" />
+                </svg>
+            </div>
+            <h1><span class="accent">BugChecker</span> AI
+            </h1>
+            <span class="badge">Created by Achal</span>
+        </div>
+        <div class="header-right">
+            <div id="connection-status" class="connection-status disconnected">
+                <span class="status-dot"></span>
+                <span class="status-text">Not Configured</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- ========== STEPPER ========== -->
+    <div id="stepper" class="stepper">
+        <div class="step active" data-step="1">
+            <div class="step-circle">1</div>
+            <span>Configure</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step" data-step="2">
+            <div class="step-circle">2</div>
+            <span>Describe Bug</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step" data-step="3">
+            <div class="step-circle">3</div>
+            <span>Review Report</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step" data-step="4">
+            <div class="step-circle">4</div>
+            <span>Create Bug</span>
+        </div>
+    </div>
+
+    <!-- ========== MAIN CONTENT ========== -->
+    <main id="app-main">
+
+        <!-- ==================== STEP 1: CONFIGURATION ==================== -->
+        <section id="step-1-panel" class="step-panel glass-card active-panel">
+            <h2 class="panel-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3" />
+                    <path
+                        d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                </svg>
+                Configuration
+            </h2>
+            <p class="panel-desc">Provide your API keys and Jira credentials to connect.</p>
+
+            <div class="config-grid">
+                <!-- Groq -->
+                <div class="config-section">
+                    <h3 class="config-section-title">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+                        </svg>
+                        Groq API
+                    </h3>
+                    <div class="form-group">
+                        <label for="cfg-groq-key">API Key <span class="required">*</span></label>
+                        <div class="input-password-wrapper">
+                            <input type="password" id="cfg-groq-key" placeholder="gsk_..." />
+                            <button type="button" class="btn-toggle-vis" data-target="cfg-groq-key" title="Show/Hide">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                    <circle cx="12" cy="12" r="3" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="validate-row">
+                        <button type="button" id="btn-validate-groq" class="btn-validate">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                                <polyline points="22 4 12 14.01 9 11.01" />
+                            </svg>
+                            <span>Validate Key</span>
+                            <div class="btn-loader hidden"></div>
+                        </button>
+                        <div id="groq-status" class="validate-status hidden">
+                            <span class="validate-icon"></span>
+                            <span class="validate-msg"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Jira -->
+                <div class="config-section">
+                    <h3 class="config-section-title">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+                            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+                        </svg>
+                        Jira Connection
+                    </h3>
+                    <div class="form-group">
+                        <label for="cfg-jira-url">Jira Connection URL <span class="required">*</span></label>
+                        <input type="text" id="cfg-jira-url" placeholder="https://yourcompany.atlassian.net" />
+                    </div>
+                    <div class="form-group">
+                        <label for="cfg-jira-email">Email <span class="required">*</span></label>
+                        <input type="email" id="cfg-jira-email" placeholder="you@company.com" />
+                    </div>
+                    <div class="form-group">
+                        <label for="cfg-jira-token">API Token <span class="required">*</span></label>
+                        <div class="input-password-wrapper">
+                            <input type="password" id="cfg-jira-token" placeholder="Your Jira API token" />
+                            <button type="button" class="btn-toggle-vis" data-target="cfg-jira-token" title="Show/Hide">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                    <circle cx="12" cy="12" r="3" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="cfg-jira-project">Project Key <span class="required">*</span></label>
+                            <input type="text" id="cfg-jira-project" placeholder="BUG" />
+                        </div>
+                        <div class="form-group">
+                            <label for="cfg-jira-issuetype">Issue Type</label>
+                            <input type="text" id="cfg-jira-issuetype" placeholder="Bug" value="Bug" />
+                        </div>
+                    </div>
+                    <div class="validate-row">
+                        <button type="button" id="btn-validate-jira" class="btn-validate">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                                <polyline points="22 4 12 14.01 9 11.01" />
+                            </svg>
+                            <span>Validate Connection</span>
+                            <div class="btn-loader hidden"></div>
+                        </button>
+                        <div id="jira-status" class="validate-status hidden">
+                            <span class="validate-icon"></span>
+                            <span class="validate-msg"></span>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="cfg-jira-status">Status</label>
+                            <select id="cfg-jira-status">
+                                <option value="To Do" selected>To Do</option>
+                                <option value="Idea">Idea</option>
+                            </select>
+                        </div>
+                        <div></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step-actions">
+                <div></div>
+                <button id="btn-save-config" class="btn-primary">
+                    Save & Continue
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="5" y1="12" x2="19" y2="12" />
+                        <polyline points="12 5 19 12 12 19" />
+                    </svg>
+                </button>
+            </div>
+        </section>
+
+        <!-- ==================== STEP 2: DESCRIBE BUG ==================== -->
+        <section id="step-2-panel" class="step-panel glass-card">
+            <h2 class="panel-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="17 8 12 3 7 8" />
+                    <line x1="12" y1="3" x2="12" y2="15" />
+                </svg>
+                Describe the Bug
+            </h2>
+            <p class="panel-desc">Upload the bug screenshot and write a brief description of the issue.</p>
+
+            <div class="describe-grid">
+                <!-- Screenshot upload -->
+                <div class="describe-left">
+                    <label class="section-label">Issue Screenshot <span class="required">*</span></label>
+                    <div id="drop-zone" class="drop-zone">
+                        <div class="drop-zone-content">
+                            <div class="drop-icon">
+                                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="1.5">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                                    <circle cx="8.5" cy="8.5" r="1.5" />
+                                    <polyline points="21 15 16 10 5 21" />
+                                </svg>
+                            </div>
+                            <p class="drop-text">Drag & drop screenshot here</p>
+                            <p class="drop-subtext">or click to browse</p>
+                            <span class="drop-formats">PNG, JPG, WEBP — Max 20MB</span>
+                        </div>
+                        <input type="file" id="file-input" accept="image/*" hidden />
+                    </div>
+
+                    <div id="preview-container" class="preview-container hidden">
+                        <img id="preview-image" alt="Screenshot preview" />
+                        <button id="btn-remove-image" class="btn-remove" title="Remove image">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <line x1="18" y1="6" x2="6" y2="18" />
+                                <line x1="6" y1="6" x2="18" y2="18" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Description + Linked Work Item -->
+                <div class="describe-right">
+                    <div class="form-group">
+                        <label for="issue-description">Issue Description <span class="required">*</span></label>
+                        <textarea id="issue-description" rows="6"
+                            placeholder="Describe the bug in brief...&#10;&#10;Example: The login button is not responding when clicked on the staging environment. The page shows a spinner but never completes the action."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="linked-work-item">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" style="vertical-align: -2px; margin-right: 4px;">
+                                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                            </svg>
+                            Linked Work Item
+                        </label>
+                        <input type="text" id="linked-work-item"
+                            placeholder="KAN-4 or https://...atlassian.net/browse/KAN-4" />
+                        <span class="field-hint">The bug will be linked as "relates to" this issue in Jira</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step-actions">
+                <button id="btn-back-to-1" class="btn-secondary">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="19" y1="12" x2="5" y2="12" />
+                        <polyline points="12 19 5 12 12 5" />
+                    </svg>
+                    Back
+                </button>
+                <button id="btn-analyze" class="btn-primary" disabled>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+                    </svg>
+                    <span>Analyze with AI</span>
+                    <div class="btn-loader hidden"></div>
+                </button>
+            </div>
+        </section>
+
+        <!-- ==================== STEP 3: REVIEW REPORT ==================== -->
+        <section id="step-3-panel" class="step-panel glass-card">
+            <h2 class="panel-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                    <line x1="16" y1="13" x2="8" y2="13" />
+                    <line x1="16" y1="17" x2="8" y2="17" />
+                    <polyline points="10 9 9 9 8 9" />
+                </svg>
+                Review Bug Report
+            </h2>
+            <p class="panel-desc">AI has analyzed your screenshot and description. Review and edit the report below.</p>
+
+            <form id="report-form" class="report-form">
+                <div class="form-group">
+                    <label for="bug-title">Bug Title</label>
+                    <input type="text" id="bug-title" placeholder="Clear, concise bug title..." />
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="bug-severity">Severity</label>
+                        <select id="bug-severity">
+                            <option value="Critical">🔴 Critical</option>
+                            <option value="Major">🟠 Major</option>
+                            <option value="Minor" selected>🟡 Minor</option>
+                            <option value="Trivial">⚪ Trivial</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="bug-priority">Priority</label>
+                        <select id="bug-priority">
+                            <option value="P1-Urgent">P1 — Urgent</option>
+                            <option value="P2-High">P2 — High</option>
+                            <option value="P3-Medium" selected>P3 — Medium</option>
+                            <option value="P4-Low">P4 — Low</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="bug-environment">Environment</label>
+                    <input type="text" id="bug-environment" placeholder="Browser, OS, device, URL..." />
+                </div>
+
+                <div class="form-group">
+                    <label>Steps to Reproduce</label>
+                    <div id="steps-container" class="steps-container">
+                        <div class="step-row">
+                            <span class="step-number">1.</span>
+                            <input type="text" class="step-input" placeholder="Step 1..." />
+                            <button type="button" class="btn-remove-step" title="Remove step">×</button>
+                        </div>
+                    </div>
+                    <button type="button" id="btn-add-step" class="btn-add-step">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19" />
+                            <line x1="5" y1="12" x2="19" y2="12" />
+                        </svg>
+                        Add Step
+                    </button>
+                </div>
+
+                <div class="form-group">
+                    <label for="bug-expected">Expected Result</label>
+                    <textarea id="bug-expected" rows="2" placeholder="What should happen..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="bug-actual">Actual Result</label>
+                    <textarea id="bug-actual" rows="2" placeholder="What actually happened..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="bug-notes">Additional Notes</label>
+                    <textarea id="bug-notes" rows="2" placeholder="Any extra observations..."></textarea>
+                </div>
+            </form>
+
+            <div class="step-actions">
+                <button id="btn-back-to-2" class="btn-secondary">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="19" y1="12" x2="5" y2="12" />
+                        <polyline points="12 19 5 12 12 5" />
+                    </svg>
+                    Back
+                </button>
+                <div class="step-actions-right">
+                    <button id="btn-copy-report" class="btn-secondary">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                        </svg>
+                        Copy
+                    </button>
+                    <button id="btn-create-bug" class="btn-jira">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+                            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+                        </svg>
+                        <span>Create Bug in Jira</span>
+                        <div class="btn-loader hidden"></div>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== STEP 4: SUCCESS ==================== -->
+        <section id="step-4-panel" class="step-panel glass-card">
+            <div class="success-panel">
+                <div class="success-icon">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                        <polyline points="22 4 12 14.01 9 11.01" />
+                    </svg>
+                </div>
+                <h2>Bug Created Successfully!</h2>
+                <p class="success-ticket">Ticket: <a id="jira-ticket-link" href="#" target="_blank"
+                        class="ticket-link">—</a></p>
+                <p class="success-sub">The screenshot has been attached to the Jira ticket.</p>
+                <div class="success-actions">
+                    <a id="btn-open-ticket" href="#" target="_blank" class="btn-primary">
+                        Open in Jira
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                            <polyline points="15 3 21 3 21 9" />
+                            <line x1="10" y1="14" x2="21" y2="3" />
+                        </svg>
+                    </a>
+                    <button id="btn-new-bug" class="btn-secondary">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19" />
+                            <line x1="5" y1="12" x2="19" y2="12" />
+                        </svg>
+                        Report Another Bug
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ========== TOAST CONTAINER ========== -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <script type="module" src="/main.js"></script>
+</body>
+
+</html>
