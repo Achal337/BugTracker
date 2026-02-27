@@ -21,6 +21,19 @@ The dev server includes a built-in proxy (`vite.config.js`) that forwards Jira A
 
 ## Production Build & Deployment
 
+### Vercel Deployment
+
+If you're hosting on Vercel, the `server.js` Express server won't run – instead
+Vercel exposes any files under `api/` as serverless functions. Two such
+functions (`jira-proxy.js` and `jira-upload.js`) have been added to mirror the
+proxy behaviour. After pushing to GitHub, Vercel will automatically build the
+frontend and deploy these functions so that `/api/jira-proxy` and
+`/api/jira-upload` work correctly.
+
+Ensure the `formidable` dependency is installed (included below) because the
+upload handler needs it.
+
+
 1. Build the frontend:
    ```bash
    npm run build
