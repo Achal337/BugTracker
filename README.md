@@ -30,8 +30,6 @@ proxy behaviour. After pushing to GitHub, Vercel will automatically build the
 frontend and deploy these functions so that `/api/jira-proxy` and
 `/api/jira-upload` work correctly.
 
-Ensure the `formidable` dependency is installed (included below) because the
-upload handler needs it.
 
 
 1. Build the frontend:

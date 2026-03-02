@@ -1,10 +1,10 @@
 // Serverless function for handling Jira file uploads (multipart)
 
-import formidable from 'formidable';
+
 
 export const config = {
   api: {
-    bodyParser: false, // we will parse manually with formidable
+    bodyParser: false, // we handle the raw multipart stream manually
   },
 };
 
@@ -14,35 +14,32 @@ export default async function handler(req, res) {
     return;
   }
 
-  const form = new formidable.IncomingForm();
+  const targetUrl = req.headers['x-target-url'];
+  const authorization = req.headers['x-jira-auth'];
 
-  form.parse(req, async (err, fields, files) => {
-    if (err) {
-      res.status(500).json({ error: 'Upload parsing failed' });
-      return;
-    }
+  if (!targetUrl) {
+    res.status(400).json({ error: 'x-target-url header required' });
+    return;
+  }
 
-    const targetUrl = req.headers['x-target-url'];
-    const authorization = req.headers['x-jira-auth'];
-
-    if (!targetUrl) {
-      res.status(400).json({ error: 'x-target-url header required' });
-      return;
-    }
+  // accumulate raw body chunks
+  const chunks = [];
+  req.on('data', (chunk) => chunks.push(chunk));
+  req.on('error', (err) => {
+    res.status(500).json({ error: 'Request stream error' });
+  });
+  req.on('end', async () => {
+    const rawBody = Buffer.concat(chunks);
 
     try {
-      // read raw file buffer
-      const file = files.file;
-      const buffer = await fs.promises.readFile(file.filepath);
-
       const upstream = await fetch(targetUrl, {
         method: 'POST',
         headers: {
           Authorization: authorization,
           'X-Atlassian-Token': 'no-check',
-          'Content-Type': file.mimetype,
+          'Content-Type': req.headers['content-type'],
         },
-        body: buffer,
+        body: rawBody,
       });
 
       const responseBody = await upstream.text();
