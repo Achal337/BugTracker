@@ -476,14 +476,41 @@ body {
   overflow: hidden;
   border: 1px solid var(--border-color);
   animation: fadeIn 0.3s ease;
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  padding: 0.5rem;
 }
 
-.preview-container img {
+.preview-item {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: rgba(0,0,0,0.2);
+}
+.preview-item img {
   width: 100%;
-  max-height: 320px;
-  object-fit: contain;
+  height: 100%;
+  object-fit: cover;
   display: block;
-  background: rgba(0, 0, 0, 0.3);
+}
+
+.preview-item .btn-remove {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 24px;
+  height: 24px;
+  background: rgba(239,68,68,0.85);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  border: none;
+  cursor: pointer;
 }
 
 .btn-remove {

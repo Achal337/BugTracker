@@ -211,7 +211,7 @@
                 </svg>
                 Describe the Bug
             </h2>
-            <p class="panel-desc">Upload the bug screenshot and write a brief description of the issue.</p>
+            <p class="panel-desc">Upload one to four bug screenshots and write a brief description of the issue.</p>
 
             <div class="describe-grid">
                 <!-- Screenshot upload -->
@@ -227,22 +227,15 @@
                                     <polyline points="21 15 16 10 5 21" />
                                 </svg>
                             </div>
-                            <p class="drop-text">Drag & drop screenshot here</p>
+                            <p class="drop-text">Drag & drop screenshots here (max 4)</p>
                             <p class="drop-subtext">or click to browse</p>
-                            <span class="drop-formats">PNG, JPG, WEBP — Max 20MB</span>
+                            <span class="drop-formats">PNG, JPG, WEBP — Max 20MB each</span>
                         </div>
-                        <input type="file" id="file-input" accept="image/*" hidden />
+                        <input type="file" id="file-input" accept="image/*" multiple hidden />
                     </div>
 
                     <div id="preview-container" class="preview-container hidden">
-                        <img id="preview-image" alt="Screenshot preview" />
-                        <button id="btn-remove-image" class="btn-remove" title="Remove image">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2">
-                                <line x1="18" y1="6" x2="6" y2="18" />
-                                <line x1="6" y1="6" x2="18" y2="18" />
-                            </svg>
-                        </button>
+                        <!-- thumbnails will be injected here -->
                     </div>
                 </div>
 

@@ -3,8 +3,12 @@
 // 4-Step Flow: Configure → Describe Bug → Review Report → Create Bug
 // ===================================================================
 
-let uploadedFile = null;
-let uploadedBase64 = null;
+// support up to 4 screenshots
+let uploadedFiles = [];
+let uploadedBase64s = []; // parallel base64 strings
+let pendingUploads = 0; // number of files currently being read
+
+
 let isAnalyzing = false;
 let isPushingJira = false;
 let currentStep = 1;
@@ -253,7 +257,12 @@ function initStep2() {
     dropZone.addEventListener('click', () => fileInput.click());
 
     fileInput.addEventListener('change', (e) => {
-        if (e.target.files.length > 0) handleFile(e.target.files[0]);
+        if (e.target.files.length > 0) {
+            for (const f of e.target.files) {
+                handleFile(f);
+                if (uploadedFiles.length + pendingUploads >= 4) break;
+            }
+        }
     });
 
     dropZone.addEventListener('dragover', (e) => {
@@ -264,19 +273,21 @@ function initStep2() {
     dropZone.addEventListener('drop', (e) => {
         e.preventDefault();
         dropZone.classList.remove('drag-over');
-        if (e.dataTransfer.files.length > 0) handleFile(e.dataTransfer.files[0]);
+        if (e.dataTransfer.files.length > 0) {
+            for (const f of e.dataTransfer.files) {
+                handleFile(f);
+                if (uploadedFiles.length + pendingUploads >= 4) break;
+            }
+        }
     });
 
-    btnRemove.addEventListener('click', (e) => {
-        e.stopPropagation();
-        resetUpload();
-    });
+    // btnRemove is no longer a single-button; individual previews have their own remove button.
 
     btnAnalyze.addEventListener('click', () => analyzeWithAI());
 
     // Enable analyze button when both screenshot and description are present
     const checkReady = () => {
-        btnAnalyze.disabled = !(uploadedBase64 && description.value.trim());
+        btnAnalyze.disabled = !(uploadedBase64s.length > 0 && description.value.trim());
     };
     description.addEventListener('input', checkReady);
 
@@ -285,6 +296,11 @@ function initStep2() {
 }
 
 function handleFile(file) {
+    // reserve slot including pending
+    if (uploadedFiles.length + pendingUploads >= 4) {
+        showToast('Maximum of 4 screenshots allowed.', 'warning');
+        return;
+    }
     if (!file.type.startsWith('image/')) {
         showToast('Please upload an image file (PNG, JPG, WEBP)', 'error');
         return;
@@ -294,29 +310,75 @@ function handleFile(file) {
         return;
     }
 
-    uploadedFile = file;
+    pendingUploads++;
     const reader = new FileReader();
     reader.onload = (e) => {
-        uploadedBase64 = e.target.result;
-        showPreview(e.target.result);
+        pendingUploads--;
+        uploadedFiles.push(file);
+        uploadedBase64s.push(e.target.result);
+        showPreview();
+    };
+    reader.onerror = () => {
+        pendingUploads--;
+        showToast('Failed to read image.', 'error');
     };
     reader.readAsDataURL(file);
 }
 
-function showPreview(dataUrl) {
-    $('#preview-image').src = dataUrl;
+function showPreview() {
+    const container = $('#preview-container');
+    container.innerHTML = '';
+
+    if (uploadedBase64s.length === 0) {
+        // nothing left, show drop zone again
+        $('#drop-zone').classList.remove('hidden');
+        container.classList.add('hidden');
+        $('#btn-analyze').disabled = true;
+        return;
+    }
+
+    uploadedBase64s.forEach((url, idx) => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'preview-item';
+        wrapper.innerHTML = `
+            <img src="${url}" alt="Screenshot ${idx + 1}" />
+            <button type="button" class="btn-remove" data-index="${idx}" title="Remove image">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+            </button>
+        `;
+        container.appendChild(wrapper);
+    });
+
     $('#drop-zone').classList.add('hidden');
-    $('#preview-container').classList.remove('hidden');
+    container.classList.remove('hidden');
+
+    // attach remove handlers
+    container.querySelectorAll('.btn-remove').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const idx = parseInt(btn.dataset.index, 10);
+            removeFile(idx);
+        });
+    });
 
     // Check if analyze should be enabled
     const desc = $('#issue-description').value.trim();
-    $('#btn-analyze').disabled = !desc;
+    $('#btn-analyze').disabled = !(desc && uploadedBase64s.length);
+}
+
+function removeFile(index) {
+    uploadedFiles.splice(index, 1);
+    uploadedBase64s.splice(index, 1);
+    showPreview();
+    $('#file-input').value = ''; // allow reselecting same files
 }
 
 function resetUpload() {
-    uploadedFile = null;
-    uploadedBase64 = null;
-    $('#preview-image').src = '';
+    uploadedFiles = [];
+    uploadedBase64s = [];
+    $('#preview-container').innerHTML = '';
     $('#preview-container').classList.add('hidden');
     $('#drop-zone').classList.remove('hidden');
     $('#btn-analyze').disabled = true;
@@ -332,7 +394,7 @@ async function analyzeWithAI() {
         showToast('Groq API key not configured. Go back to Step 1.', 'error');
         return;
     }
-    if (!uploadedBase64) { showToast('Upload a screenshot first.', 'warning'); return; }
+    if (uploadedBase64s.length === 0) { showToast('Upload at least one screenshot first.', 'warning'); return; }
 
     const userDescription = $('#issue-description').value.trim();
     if (!userDescription) { showToast('Provide a brief description of the issue.', 'warning'); return; }
@@ -369,6 +431,8 @@ JSON format:
   "additional_notes": "Any extra observations from the screenshot and description analysis"
 }`;
 
+        // build image blocks for each screenshot
+        const imageBlocks = uploadedBase64s.map(url => ({ type: 'image_url', image_url: { url } }));
         const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
             method: 'POST',
             headers: {
@@ -382,8 +446,8 @@ JSON format:
                     {
                         role: 'user',
                         content: [
-                            { type: 'image_url', image_url: { url: uploadedBase64 } },
-                            { type: 'text', text: `Here is my brief description of the bug:\n\n"${userDescription}"\n\nAnalyze the screenshot along with this description and generate the structured bug report JSON.` }
+                            ...imageBlocks,
+                            { type: 'text', text: `Here is my brief description of the bug:\n\n"${userDescription}"\n\nAnalyze the screenshot(s) along with this description and generate the structured bug report JSON.` }
                         ]
                     }
                 ],
@@ -612,11 +676,13 @@ async function pushToJira() {
             }
         }
 
-        // ---- 4. Attach screenshot ----
-        if (uploadedFile) {
+        // ---- 4. Attach screenshots ----
+        if (uploadedFiles.length) {
             try {
                 const formData = new FormData();
-                formData.append('file', uploadedFile, uploadedFile.name);
+                uploadedFiles.forEach((f) => {
+                    formData.append('file', f, f.name);
+                });
 
                 await fetch('/api/jira-upload', {
                     method: 'POST',
