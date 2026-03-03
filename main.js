@@ -293,7 +293,27 @@ function initStep2() {
 
     // Back button
     $('#btn-back-to-1').addEventListener('click', () => goToStep(1));
+
+    // allow pasting screenshots from clipboard
+    document.addEventListener('paste', handlePaste);
 }
+
+function handlePaste(e) {
+    if (!e.clipboardData) return;
+    const items = e.clipboardData.items;
+    if (!items) return;
+    for (const item of items) {
+        if (item.type.startsWith('image/')) {
+            const file = item.getAsFile();
+            if (file) {
+                handleFile(file);
+                // prevent default so page doesn't navigate
+                e.preventDefault();
+            }
+        }
+    }
+}
+
 
 function handleFile(file) {
     // reserve slot including pending
