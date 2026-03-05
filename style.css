@@ -469,6 +469,22 @@ body {
   border-radius: 999px;
 }
 
+.btn-browse {
+  margin-top: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xs);
+  background: var(--bg-input);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-browse:hover {
+  background: var(--bg-input-focus);
+}
+
 /* ===== PREVIEW ===== */
 .preview-container {
   position: relative;

@@ -217,7 +217,7 @@
                 <!-- Screenshot upload -->
                 <div class="describe-left">
                     <label class="section-label">Issue Screenshot <span class="required">*</span></label>
-                    <div id="drop-zone" class="drop-zone">
+                    <div id="drop-zone" class="drop-zone" tabindex="0">
                         <div class="drop-zone-content">
                             <div class="drop-icon">
                                 <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -228,8 +228,9 @@
                                 </svg>
                             </div>
                             <p class="drop-text">Drag & drop or paste screenshots here (max 4)</p>
-                            <p class="drop-subtext">or click to browse / press Ctrl+V</p>
+                            <p class="drop-subtext">or click the button below / press Ctrl+V</p>
                             <span class="drop-formats">PNG, JPG, WEBP — Max 20MB each</span>
+                            <button type="button" id="btn-browse" class="btn-browse">Browse…</button>
                         </div>
                         <input type="file" id="file-input" accept="image/*" multiple hidden />
                     </div>

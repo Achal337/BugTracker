@@ -254,7 +254,17 @@ function initStep2() {
     const btnAnalyze = $('#btn-analyze');
     const description = $('#issue-description');
 
-    dropZone.addEventListener('click', () => fileInput.click());
+    // clicking drop zone now focuses it (for paste) but does not open file dialog
+    dropZone.addEventListener('click', () => dropZone.focus());
+
+    // separate browse button triggers file picker
+    const btnBrowse = $('#btn-browse');
+    if (btnBrowse) {
+        btnBrowse.addEventListener('click', (e) => {
+            e.stopPropagation();
+            fileInput.click();
+        });
+    }
 
     fileInput.addEventListener('change', (e) => {
         if (e.target.files.length > 0) {
@@ -270,6 +280,9 @@ function initStep2() {
         dropZone.classList.add('drag-over');
     });
     dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+    dropZone.addEventListener('focus', () => {
+        // allow pasting when zone has focus
+    });
     dropZone.addEventListener('drop', (e) => {
         e.preventDefault();
         dropZone.classList.remove('drag-over');
